@@ -1,0 +1,112 @@
+#This code should work if copied and pasted into a JupyterLyte notebook
+import numpy as np
+rng = np.random.default_rng()
+
+#The following values can be changed (to numbers!)
+n = 30
+#n is the length of a row of the matrix; n must be an integer and at least 4
+first = 1
+#0 = Z goes first, otherwise N goes first
+random = 0
+#Random decides whether Z will play randomly or following a fixed strategy: 0 = fixed strategy, otherwise Z plays at random
+
+#Checks that the user put in valid values
+if isinstance(n, int) == False:
+    n = round(n)
+    print("Error: n must be an integer. It has been rounded to", n, "for you.")
+if n<0:
+    n = -n
+    print("Error: n must be positive. It has been set to", n, "for you.")
+if n == 0:
+    n = 1
+    print("Error: n cannot be 0. It has been set to", n, "for you.")
+if n > 31 and n<256:
+    print("Warning: Your value of n is greater than 31. You will only see an abbreviated matrix, but will still see the determinant.")
+if n>=256 and n<100000000000:
+    print("Warning: Your value of n is very large. The matrix may not be computed, or it might take a while. Also, the determinant may be inaccurate.")
+if n>=100000000000:
+    print("No.")
+    n = 1
+if n<4 and random == 0:
+    print("Error: the fixed strategy only works for when n is at least 4. You will instead be shown a random game.")
+
+Nmax = n*n
+
+#Setting things up
+if n == 1:
+    Nmax = 2
+P = np.arange(0, Nmax)
+toconv = np.zeros_like(P)
+EEE = 0
+nmod = n % 2
+
+#Now to check whether the user wants to verify the strategic algorithm, or generate a random matrix
+#This code is the strategic algorithm
+if random == 0 and n>=4:
+    print("Fixed strategy: Z should win.")
+    lkjhgfd = 0
+    while lkjhgfd<Nmax:
+        toconv[lkjhgfd] = 2
+        lkjhgfd = lkjhgfd+1
+    SK = 0 
+    if first == 0:
+        if  nmod == 0:
+            K = rng.integers(0, Nmax-1)
+        else:
+            K = int(Nmax/2)
+        toconv[K] = 0
+        SK = SK+1
+    while SK<Nmax:
+        Nturn = rng.integers(0, Nmax-1)
+        if toconv[Nturn] == 2:
+            toconv[Nturn] = 1
+            SK = SK+1
+            if nmod == 0:
+                Zturn = int(Nturn-2*(Nturn % n)+n-1)
+            else:
+                if Nturn == Nmax+1/2:
+                    poiuytr = 0
+                    while poiuytr<1:
+                        Zturn = rng.integers(0,Nmax-1)
+                        if toconv[Zturn] == 2:
+                            toconv[Zturn] = 0
+                            poiuytr = 1
+                else:
+                     if int(Nturn % n) == int((n-1)/2):
+                        Zturn = int(Nmax-Nturn-1)
+                     else:
+                        Zturn = int(Nturn-2*(Nturn % n)+n-1)
+            toconv[Zturn] = 0
+            SK = SK+1
+            
+#This code is the random matrix        
+else:
+    print("Random game:")
+    #Generates a random array that can be turned into a matrix later
+    while EEE in np.arange(0, Nmax/2):
+        N = rng.integers(0, Nmax-1)
+        if toconv[N] == 1:
+            EEE = EEE-1
+        toconv[N] = 1
+        EEE = EEE+1
+
+    #Checks if n is odd and Z goes first, and adjusts the array accordingly
+    qwer = 0
+    if nmod == 1 and first == 0:
+        while qwer<1:
+            C = rng.integers(0, Nmax/2)
+            if toconv[C] == 0:
+                qwer = qwer-1
+            toconv[C] = 0
+            qwer = qwer+1
+
+#Matrix conversion and determinant
+A_n = np.reshape(toconv, (n, n))
+det = np.linalg.det(A_n)
+
+print("A_n =")
+print(A_n) 
+if det == 0:
+    print("The determinant is", int(det), "and therefore Z has won.")
+else:
+    print("The determinant is", int(det), "and therefore N has won.")
